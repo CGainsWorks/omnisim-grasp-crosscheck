@@ -23,11 +23,11 @@ a 60 N squeeze has friction to spare. Moderate friction does not bite either:
 | 0.06 | 0.00 | 0.00 0.00 0.00 0.00 0.00 |
 
 The floor is structural. MuJoCo combines two surfaces' friction by taking the
-larger value, and the pads are 0.05, so no box value below that changes the
+larger value and the pads are 0.05, so no box value below that changes the
 pad-box contact.
 
 0.07 was chosen because it is where the most can go wrong in a second
-simulator. It sits on a cliff, and in MuJoCo the clones outperform the expert
+simulator. It sits on a cliff and in MuJoCo the clones outperform the expert
 they were cloned from. A change that leaves everything at 1.00 in both
 simulators would agree trivially and show nothing.
 
@@ -41,10 +41,10 @@ simulators would agree trivially and show nothing.
 | P4 | Ten times the mass moves neither the expert nor the mean clone by more than 0.05. |
 | P5 | The friction cliff lies between 0.08 and 0.06, as in MuJoCo. |
 
-P5 is the weakest. Both scenes run MuJoCo 3.11 underneath, but MuJoCo's
+P5 is the weakest. Both scenes run MuJoCo 3.11 underneath but MuJoCo's
 contact softness is set per geom (the pads are softer than the box) and
 OmniSim exposes it only per world. If the cliff moves, that difference is
 the first suspect.
 
-The secondary runs (friction 0.30, 0.15, 0.08 and 0.06, and ten times the
+The secondary runs (friction 0.30, 0.15, 0.08 and 0.06 and ten times the
 mass) locate the cliff for P4 and P5. They are not extra chances at P2 and P3.

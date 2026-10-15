@@ -7,12 +7,12 @@ run here. It is a source review of one commit, not a guarantee about any other
 version.
 
 **Reviewed:** `omnilink-tech/omnisim` tag `v9.2.4`, commit
-`28e00e1f1a2d7932743911a697dc8f63ed5eb81a` (12,404 files), and the PyPI wheel
+`28e00e1f1a2d7932743911a697dc8f63ed5eb81a` (12,404 files) and the PyPI wheel
 `omnilink==0.6.3`, which the runtime image installs and which is not in the
 repository.
 
 **Verdict:** nothing malicious found. There are two auto-run surfaces worth
-knowing about, and a few ordinary risks. None of them is reachable in the way
+knowing about and a few ordinary risks. None of them is reachable in the way
 this repository runs OmniSim.
 
 ## What was checked
@@ -35,25 +35,25 @@ this repository runs OmniSim.
 - **`.mcp.json` at the repository root.** Opening the OmniSim checkout in an MCP
   client offers to start a local MCP server
   (`python -m omnisim_mcp`). It is a stdlib proxy to `127.0.0.1:6789`, so not
-  harmful, but it is code that runs because a folder was opened.
-- **Git hooks.** `.githooks/` runs Python on checkout and push, but only after
+  harmful but it is code that runs because a folder was opened.
+- **Git hooks.** `.githooks/` runs Python on checkout and push but only after
   `scripts/dev/setup_hooks.sh` sets `core.hooksPath`. Nothing sets it implicitly.
 - **Agent instruction files (`AGENTS.md` and a one-line file importing it).** Instructions written for coding agents. They
   were read as documentation. No text in them asks an agent to do anything
   outside the project, such as starring, pushing or sending data.
-- **589 committed `.pt` checkpoints.** PyTorch checkpoints are pickles, and
+- **589 committed `.pt` checkpoints.** PyTorch checkpoints are pickles and
   several training scripts call `torch.load` without `weights_only=True`, one
   explicitly with `weights_only=False`. Loading an untrusted checkpoint can
   execute code. Nothing here loads them.
 - **The chat agent exposes local files by design.** OmniLink agents can call
   file tools on the host. Its path guard is a string prefix test, so `./data`
-  would also admit `./data2`. That is a weakness, not malice, and it is not
+  would also admit `./data2`. That is a weakness, not malice and it is not
   used here.
 
 ## How it is run here
 
 - **Built from source, not downloaded.** `scripts/build_omnisim_image.sh` clones
-  the tag, refuses to build unless the commit matches the hash above, and builds
+  the tag, refuses to build unless the commit matches the hash above and builds
   the upstream `docker/Dockerfile.runtime`. The 663 MB Windows installer and the
   published GHCR image were not used, because a binary built elsewhere cannot be
   tied to the source that was read.

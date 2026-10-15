@@ -1,7 +1,7 @@
 """Write one OmniSim world per variant into ``omnisim/worlds/``.
 
 OmniSim reads a Solid's mass and friction once, when the physics model is
-built: neither has an environment override, and a runtime field write does not
+built: neither has an environment override and a runtime field write does not
 reach the solver. So the controlled change is a different world file, not a
 parameter of the run.
 

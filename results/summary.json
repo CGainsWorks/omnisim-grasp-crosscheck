@@ -1,0 +1,311 @@
+{
+  "table": {
+    "nominal": {
+      "mujoco": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      },
+      "omnisim": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      }
+    },
+    "friction_0.30": {
+      "mujoco": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      },
+      "omnisim": {
+        "expert": 1.0,
+        "clones": [
+          0.99,
+          0.98,
+          0.99,
+          0.99,
+          0.99
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 0.988
+      }
+    },
+    "friction_0.15": {
+      "mujoco": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      },
+      "omnisim": {
+        "expert": 0.99,
+        "clones": [
+          0.95,
+          0.93,
+          0.94,
+          0.97,
+          0.95
+        ],
+        "expert_ci95": [
+          0.946,
+          0.998
+        ],
+        "clone_mean": 0.948
+      }
+    },
+    "friction_0.08": {
+      "mujoco": {
+        "expert": 0.94,
+        "clones": [
+          0.97,
+          0.73,
+          0.97,
+          0.97,
+          0.98
+        ],
+        "expert_ci95": [
+          0.875,
+          0.972
+        ],
+        "clone_mean": 0.924
+      },
+      "omnisim": {
+        "expert": 0.52,
+        "clones": [
+          0.76,
+          0.59,
+          0.67,
+          0.83,
+          0.72
+        ],
+        "expert_ci95": [
+          0.423,
+          0.615
+        ],
+        "clone_mean": 0.714
+      }
+    },
+    "friction_0.07": {
+      "mujoco": {
+        "expert": 0.02,
+        "clones": [
+          0.12,
+          0.31,
+          0.52,
+          0.58,
+          0.87
+        ],
+        "expert_ci95": [
+          0.006,
+          0.07
+        ],
+        "clone_mean": 0.48
+      },
+      "omnisim": {
+        "expert": 0.52,
+        "clones": [
+          0.83,
+          0.38,
+          0.79,
+          0.85,
+          0.68
+        ],
+        "expert_ci95": [
+          0.423,
+          0.615
+        ],
+        "clone_mean": 0.706
+      }
+    },
+    "friction_0.06": {
+      "mujoco": {
+        "expert": 0.0,
+        "clones": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "expert_ci95": [
+          0.0,
+          0.037
+        ],
+        "clone_mean": 0.0
+      },
+      "omnisim": {
+        "expert": 0.03,
+        "clones": [
+          0.71,
+          0.09,
+          0.64,
+          0.66,
+          0.62
+        ],
+        "expert_ci95": [
+          0.01,
+          0.085
+        ],
+        "clone_mean": 0.544
+      }
+    },
+    "mass_x4": {
+      "mujoco": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      }
+    },
+    "mass_x10": {
+      "mujoco": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          0.99,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 0.998
+      },
+      "omnisim": {
+        "expert": 1.0,
+        "clones": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expert_ci95": [
+          0.963,
+          1.0
+        ],
+        "clone_mean": 1.0
+      }
+    }
+  },
+  "transfer": {
+    "nominal": {
+      "mujoco_clones_in_omnisim": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "omnisim_clones_in_mujoco": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "friction_0.07": {
+      "mujoco_clones_in_omnisim": [
+        0.45,
+        0.52,
+        0.42,
+        0.58,
+        0.81
+      ],
+      "omnisim_clones_in_mujoco": [
+        0.14,
+        0.1,
+        0.45,
+        0.23,
+        0.13
+      ]
+    }
+  },
+  "predictions": [
+    {
+      "id": "P1",
+      "claim": "In the nominal OmniSim world the expert scores at least 0.95 and the mean of the five OmniSim-trained clones at least 0.90.",
+      "verdict": "held",
+      "observed": "expert 1.00, mean clone 1.00"
+    },
+    {
+      "id": "P2",
+      "claim": "At friction_0.07 in OmniSim the expert scores below 0.50.",
+      "verdict": "failed",
+      "observed": "expert 0.52"
+    },
+    {
+      "id": "P3",
+      "claim": "At friction_0.07 in OmniSim the mean clone scores above the expert.",
+      "verdict": "held",
+      "observed": "mean clone 0.71 against expert 0.52"
+    },
+    {
+      "id": "P4",
+      "claim": "mass_x10 moves neither the expert nor the mean clone by more than 0.05 from nominal in OmniSim.",
+      "verdict": "held",
+      "observed": "expert moves 0.00, mean clone moves 0.00"
+    },
+    {
+      "id": "P5",
+      "claim": "The friction cliff (the step from expert >= 0.90 to expert <= 0.10) lies between 0.08 and 0.06 in OmniSim too. Weakest of the five: the scenes share the MuJoCo solver but not the contact softness, which OmniSim sets per world rather than per geom.",
+      "verdict": "failed",
+      "observed": "expert 0.52 at 0.08, 0.03 at 0.06"
+    }
+  ]
+}

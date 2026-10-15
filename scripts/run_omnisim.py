@@ -7,7 +7,7 @@ splits every job's seeds into contiguous chunks and runs one container per
 chunk. The chunks are merged back in seed order, so the output does not depend
 on the worker count.
 
-The container gets no network (``--network none``), the repository read only,
+The container gets no network (``--network none``), the repository read only
 and a named volume for its output. A writable bind mount works on Docker
 Desktop and fails on a Linux CI runner, so results come back with
 ``docker cp`` instead. The image is built from source by
@@ -44,7 +44,10 @@ def docker(*args: str, check: bool = True, **kw) -> subprocess.CompletedProcess:
     return subprocess.run(["docker", *args], check=check, **kw)
 
 
-def run(variant: str, jobs: list, out: str, duration: int) -> dict:
+def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | None = None) -> dict:
+    world_file = os.path.join(REPO, "omnisim", "worlds", f"lift_{variant}.wbt")
+    if not os.path.exists(world_file):
+        raise FileNotFoundError(f"{world_file} is missing; run omnisim/gen_worlds.py")
     for job in jobs:
         if not job["actor"].startswith("expert"):
             job["actor"] = to_container(job["actor"])
@@ -66,6 +69,7 @@ def run(variant: str, jobs: list, out: str, duration: int) -> dict:
             "-e", f"CROSSCHECK_JOBS={to_container(jobs_path)}",
             "-e", "CROSSCHECK_OUT=/work/out",
             "-e", "OMNISIM_LOG_PATH=/work/out/omnisim_log.txt",
+            *[x for k, v in (extra_env or {}).items() for x in ("-e", f"{k}={v}")],
             IMAGE, "run-headless", world, "--duration", str(duration),
             check=False, capture_output=True, text=True)
         os.makedirs(out, exist_ok=True)
@@ -103,11 +107,13 @@ def split(jobs: list, workers: int) -> list:
     return [p for p in plans if p]
 
 
-def run_parallel(variant: str, jobs: list, out: str, duration: int, workers: int) -> dict:
+def run_parallel(variant: str, jobs: list, out: str, duration: int, workers: int,
+                 extra_env: dict | None = None) -> dict:
     plans = split(jobs, workers)
     dirs = [os.path.join(out, "workers", f"w{k}") for k in range(len(plans))]
     with ThreadPoolExecutor(len(plans)) as pool:
-        statuses = list(pool.map(lambda a: run(variant, *a, duration), zip(plans, dirs)))
+        statuses = list(pool.map(lambda a: run(variant, *a, duration, extra_env),
+                                 zip(plans, dirs)))
     for job in jobs:
         episodes, obs, act = [], [], []
         for d in dirs:

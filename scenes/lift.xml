@@ -17,7 +17,7 @@
     <geom solimp="0.95 0.99 0.001" solref="0.005 1"/>
     <default class="finger">
       <!-- Visual only: in OmniSim friction is per body, so a finger and its pad
-           cannot carry different values, and only the pad collides there. The
+           cannot carry different values and only the pad collides there. The
            same holds here so the two scenes have the same contact set. -->
       <geom type="box" size="0.010 0.009 0.033" contype="0" conaffinity="0"
             rgba="0.25 0.27 0.32 1" mass="0.02"/>
@@ -25,7 +25,7 @@
     <default class="pad">
       <!-- Pad friction sits below every box value. MuJoCo combines two geoms'
            friction by elementwise maximum, so with a low pad the pad-box
-           contact friction is the box friction, and the friction change is
+           contact friction is the box friction and the friction change is
            not silently masked. -->
       <geom type="box" size="0.002 0.009 0.018" condim="4" friction="0.05 0.10 0.002"
             solimp="0.92 0.97 0.002" solref="0.008 1" rgba="0.85 0.45 0.20 1" mass="0.005"/>

@@ -6,7 +6,7 @@ inside the OmniSim controller, which only has the interpreter the engine ships.
 Geometry
 --------
 World z is up and the table top is at ``TABLE_Z``. A parallel-jaw hand rides a
-three-axis gantry: three prismatic joints under position control carry the palm,
+three-axis gantry: three prismatic joints under position control carry the palm
 and two prismatic fingers close on the box. The gantry stands in for the mocap
 weld of the original repository, because a position-servoed prismatic joint is
 something both simulators model natively, so the two scenes describe the same
@@ -27,7 +27,7 @@ Index  Size  Quantity
 17:20   3    hold point position
 =====  ====  ===============================================
 
-Object orientation is left out on purpose. The expert never reads it, and the
+Object orientation is left out on purpose. The expert never reads it and the
 original repository showed that a behaviour-cloned policy will lean on an input
 its teacher ignores, which would add a confound to a cross-simulator test.
 

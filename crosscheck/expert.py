@@ -2,7 +2,7 @@
 
 A four-phase state machine ported from ``ml-grasp-rl-imitation-sim`` with the
 wrist and handle branches removed. It reads only the grip point, the object
-position and the hold point, and it runs unchanged in both simulators.
+position and the hold point and it runs unchanged in both simulators.
 
     APPROACH  move above the box, fingers open
     DESCEND   drop to the grasp height, fingers open

@@ -5,7 +5,7 @@ fitted by mean squared error to the expert's actions. The hyperparameters follow
 the original repository (256 units, 60 epochs, batch 256, learning rate 1e-3).
 
 It is numpy rather than torch because the trained policy has to run inside the
-OmniSim controller, whose interpreter carries numpy and not torch, and because
+OmniSim controller, whose interpreter carries numpy and not torch and because
 one implementation used for both simulators removes the learner as a variable.
 """
 

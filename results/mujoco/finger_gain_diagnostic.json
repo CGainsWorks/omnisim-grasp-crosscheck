@@ -1,0 +1,14 @@
+{
+  "finger_gains": {
+    "kp": 600.0,
+    "kv": 30.0
+  },
+  "expert": {
+    "nominal": 1.0,
+    "friction_0.30": 1.0,
+    "friction_0.15": 1.0,
+    "friction_0.08": 1.0,
+    "friction_0.07": 0.99,
+    "friction_0.06": 0.9
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "samples": 20000,
+  "policies": {
+    "s0": {
+      "final_val_mse": 0.004241
+    },
+    "s1": {
+      "final_val_mse": 0.0017
+    },
+    "s2": {
+      "final_val_mse": 0.002523
+    },
+    "s3": {
+      "final_val_mse": 0.004957
+    },
+    "s4": {
+      "final_val_mse": 0.003384
+    }
+  }
+}

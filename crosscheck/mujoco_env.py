@@ -15,10 +15,25 @@ SCENE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class MujocoLiftEnv:
-    def __init__(self) -> None:
+    def __init__(self, finger_gains: tuple | None = None) -> None:
+        """``finger_gains=(kp, kv)`` overrides the finger servos.
+
+        OmniSim derives a position-controlled slider's gains from its force
+        limit (kp = 10 x maxForce, kv = 0.5 x maxForce, so 600 and 30 for these
+        60 N fingers), where this scene uses kp 300 and no actuator damping.
+        Passing (600, 30) gives the reference OmniSim's finger, which isolates
+        that one difference. See docs/findings.md.
+        """
         self.model = mujoco.MjModel.from_xml_path(SCENE)
         self.data = mujoco.MjData(self.model)
         m = self.model
+        if finger_gains is not None:
+            kp, kv = finger_gains
+            for name in ("left_drive", "right_drive"):
+                a = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, name)
+                m.actuator_gainprm[a, 0] = kp
+                m.actuator_biasprm[a, 1] = -kp
+                m.actuator_biasprm[a, 2] = -kv
         self.n_substeps = int(round(task.CONTROL_DT / m.opt.timestep))
         self._gantry_q = [m.jnt_qposadr[mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_JOINT, n)]
                           for n in ("gx", "gy", "gz")]

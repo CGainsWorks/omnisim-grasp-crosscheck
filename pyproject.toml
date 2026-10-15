@@ -1,0 +1,14 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["scratch", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# The world template is VRML text; its lines follow the scene, not the linter.
+"omnisim/gen_worlds.py" = ["E501"]

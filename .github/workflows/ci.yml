@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "media/**"]
+  pull_request:
+    paths-ignore: ["**.md", "docs/**", "media/**"]
+  workflow_dispatch:
+    inputs:
+      omnisim:
+        description: "Also build OmniSim from source and run the in-engine smoke test"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # Everything that needs no simulator image: lint, tests, the world files
+    # against their generator, the committed tables against the raw results,
+    # and a short MuJoCo reproduction of the headline expert numbers.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest -q
+      - run: python omnisim/gen_worlds.py --check
+      - run: python scripts/summarise.py --check
+      - run: python scripts/reproduce_mujoco.py
+
+  omnisim:
+    # Builds the engine from the audited upstream commit (about 20 minutes),
+    # then runs the expert and one committed clone inside it. Manual only: the
+    # build is the cost, and it does not change when this repository does.
+    if: github.event_name == 'workflow_dispatch' && inputs.omnisim
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: bash scripts/build_omnisim_image.sh "$RUNNER_TEMP/omnisim-src"
+      - run: python scripts/omnisim_smoke.py --workers 4

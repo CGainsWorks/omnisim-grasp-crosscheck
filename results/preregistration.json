@@ -1,0 +1,23 @@
+{
+  "written": "2026-10-15",
+  "written_before": "any OmniSim run of a world other than nominal",
+  "variant": "friction_0.07",
+  "secondary": ["friction_0.30", "friction_0.15", "friction_0.08", "friction_0.06", "mass_x10"],
+  "chosen_on": "MuJoCo 3.11.0 reference, 100 held-out episodes, 5 clones",
+  "screen": {
+    "expert": {"nominal": 1.00, "friction_0.30": 1.00, "friction_0.15": 1.00, "friction_0.08": 0.94,
+               "friction_0.07": 0.02, "friction_0.06": 0.00, "mass_x4": 1.00, "mass_x10": 1.00},
+    "bc_by_clone": {"nominal": [1.00, 1.00, 1.00, 1.00, 1.00],
+                    "friction_0.08": [0.97, 0.73, 0.97, 0.97, 0.98],
+                    "friction_0.07": [0.12, 0.31, 0.52, 0.58, 0.87],
+                    "friction_0.06": [0.00, 0.00, 0.00, 0.00, 0.00],
+                    "mass_x10": [1.00, 0.99, 1.00, 1.00, 1.00]}
+  },
+  "predictions": [
+    {"id": "P1", "claim": "In the nominal OmniSim world the expert scores at least 0.95 and the mean of the five OmniSim-trained clones at least 0.90."},
+    {"id": "P2", "claim": "At friction_0.07 in OmniSim the expert scores below 0.50."},
+    {"id": "P3", "claim": "At friction_0.07 in OmniSim the mean clone scores above the expert."},
+    {"id": "P4", "claim": "mass_x10 moves neither the expert nor the mean clone by more than 0.05 from nominal in OmniSim."},
+    {"id": "P5", "claim": "The friction cliff (the step from expert >= 0.90 to expert <= 0.10) lies between 0.08 and 0.06 in OmniSim too. Weakest of the five: the scenes share the MuJoCo solver but not the contact softness, which OmniSim sets per world rather than per geom."}
+  ]
+}

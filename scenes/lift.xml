@@ -1,0 +1,85 @@
+<mujoco model="lift_gantry">
+  <!--
+    The MuJoCo reference scene. Same dimensions as the original repository's
+    grasp cell, with one change: the hand rides a three-axis gantry of
+    position-servoed prismatic joints instead of a free body on a mocap weld,
+    because the OmniSim world models the hand the same way and the point of
+    this repository is to compare like with like.
+
+    World z is up and the table top is at z = 0.40 m. The gantry joints are
+    zeroed at the world origin, so their positions are the carriage position.
+  -->
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast" cone="elliptic" impratio="30"
+          gravity="0 0 -9.81"/>
+
+  <default>
+    <geom solimp="0.95 0.99 0.001" solref="0.005 1"/>
+    <default class="finger">
+      <!-- Visual only: in OmniSim friction is per body, so a finger and its pad
+           cannot carry different values, and only the pad collides there. The
+           same holds here so the two scenes have the same contact set. -->
+      <geom type="box" size="0.010 0.009 0.033" contype="0" conaffinity="0"
+            rgba="0.25 0.27 0.32 1" mass="0.02"/>
+    </default>
+    <default class="pad">
+      <!-- Pad friction sits below every box value. MuJoCo combines two geoms'
+           friction by elementwise maximum, so with a low pad the pad-box
+           contact friction is the box friction, and the friction change is
+           not silently masked. -->
+      <geom type="box" size="0.002 0.009 0.018" condim="4" friction="0.05 0.10 0.002"
+            solimp="0.92 0.97 0.002" solref="0.008 1" rgba="0.85 0.45 0.20 1" mass="0.005"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <light pos="0.4 -0.4 1.6" dir="-0.3 0.3 -1" directional="true"/>
+    <geom name="floor" type="plane" size="2 2 0.05" rgba="0.25 0.27 0.29 1"/>
+    <body name="table" pos="0 0 0.20">
+      <geom name="table_top" type="box" size="0.30 0.40 0.20" rgba="0.55 0.52 0.48 1"
+            friction="0.8 0.02 0.0002" condim="4"/>
+    </body>
+
+    <body name="gantry_x" pos="0 0 0" gravcomp="1">
+      <joint name="gx" type="slide" axis="1 0 0" range="-0.30 0.30" damping="5"/>
+      <inertial pos="0 0 0" mass="0.2" diaginertia="1e-4 1e-4 1e-4"/>
+      <body name="gantry_y" gravcomp="1">
+        <joint name="gy" type="slide" axis="0 1 0" range="-0.35 0.35" damping="5"/>
+        <inertial pos="0 0 0" mass="0.2" diaginertia="1e-4 1e-4 1e-4"/>
+        <body name="hand" gravcomp="1">
+          <joint name="gz" type="slide" axis="0 0 1" range="0.40 0.80" damping="5"/>
+          <inertial pos="0 0 0" mass="0.6" diaginertia="0.002 0.002 0.002"/>
+          <geom name="palm" type="box" size="0.056 0.020 0.018" pos="0 0 0.022"
+                rgba="0.35 0.38 0.44 1" mass="0.3"/>
+          <site name="grip_site" pos="0 0 -0.046" size="0.005" rgba="1 0 0 0"/>
+          <body name="left_finger" pos="-0.052 0 -0.033">
+            <joint name="left_slide" type="slide" axis="1 0 0" range="0 0.040"
+                   damping="8" armature="0.002"/>
+            <geom name="left_finger" class="finger"/>
+            <geom name="left_pad" class="pad" pos="0.011 0 -0.013"/>
+          </body>
+          <body name="right_finger" pos="0.052 0 -0.033">
+            <joint name="right_slide" type="slide" axis="-1 0 0" range="0 0.040"
+                   damping="8" armature="0.002"/>
+            <geom name="right_finger" class="finger"/>
+            <geom name="right_pad" class="pad" pos="-0.011 0 -0.013"/>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <body name="object" pos="0 0 0.423">
+      <freejoint name="object_free"/>
+      <geom name="object" type="box" size="0.022 0.022 0.022" rgba="0.20 0.55 0.85 1"
+            mass="0.08" friction="1.0 0.05 0.0005" condim="4"/>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="drive_x" joint="gx" kp="2000" kv="120" forcerange="-200 200"/>
+    <position name="drive_y" joint="gy" kp="2000" kv="120" forcerange="-200 200"/>
+    <position name="drive_z" joint="gz" kp="2000" kv="120" forcerange="-200 200"/>
+    <position name="left_drive" joint="left_slide" kp="300" ctrlrange="0 0.040" forcerange="-60 60"/>
+    <position name="right_drive" joint="right_slide" kp="300" ctrlrange="0 0.040" forcerange="-60 60"/>
+  </actuator>
+</mujoco>

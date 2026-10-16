@@ -24,6 +24,73 @@ explains it ([findings](docs/findings.md)). Before anything ran, the
 simulator's source was read for malicious code and it was then built from
 that source and run without network access ([security review](docs/security-review.md)).
 
+## See it
+
+Each clip is one held-out starting state (seed 10000) played out in both
+simulators and filmed from the same camera pose: MuJoCo on the left, OmniSim
+on the right. The OmniSim frames come from a Camera device inside the engine.
+The caption is the outcome that episode actually had, which matches the
+committed results.
+
+**The nominal world.** The scripted expert approaches, closes and lifts. Both
+simulators hold the box at the hold point.
+
+![nominal world, scripted expert](media/nominal_expert.gif)
+
+**Box friction 0.07, the scripted expert.** The same starting state with the
+box made slippery. The expert closes for a fixed time and lifts. In both
+simulators the box slips down through the fingers and the episode fails.
+
+![box friction 0.07, scripted expert](media/friction_0.07_expert.gif)
+
+**Box friction 0.07, a cloned policy.** The same starting state again, with one
+of the five behaviour-cloned policies trained from that expert's
+demonstrations. It succeeds in both simulators, which is the clone beating its
+teacher.
+
+![box friction 0.07, cloned policy](media/friction_0.07_clone.gif)
+
+Rebuild them with `python scripts/render_media.py` (needs Docker, the OmniSim
+image and `pip install -r requirements-media.txt`).
+
+## How OmniSim was used
+
+OmniSim is driven the same way as the MuJoCo reference: through a plain
+`reset` and `step` interface, from the same task, expert and policy code. The
+only OmniSim-specific pieces are a world generator and a supervisor controller
+that runs inside the engine.
+
+```mermaid
+flowchart LR
+    subgraph shared["crosscheck/ (plain numpy, written once)"]
+        T[task and success test]
+        E[scripted expert]
+        B[behaviour cloning]
+        R[episode loop]
+    end
+    subgraph mj["MuJoCo reference"]
+        MJ[mujoco_env.py] --> S1[MuJoCo 3.11 solver]
+    end
+    subgraph om["OmniSim 9.2.4, in Docker, no network"]
+        G[gen_worlds.py] --> W[one .wbt world per variant]
+        W --> ENG[omnisim-bin engine]
+        C[lift_agent.py supervisor controller] <--> ENG
+        ENG --> NEW[Newton] --> S2[MuJoCo 3.11 solver]
+    end
+    R --> MJ
+    R --> C
+    E --> R
+    B --> R
+    T --> R
+```
+
+The engine is built from the audited upstream source by
+`scripts/build_omnisim_image.sh`. `scripts/run_omnisim.py` starts one
+container per chunk of seeds with `run-headless`, the repository mounted read
+only and results written to a named volume. Inside, the controller places the
+box, drives the gantry to its start pose and then runs the episode loop
+through OmniSim's motors, sensors and supervisor API.
+
 ## Results
 
 Success rate over 100 held-out initial states per world. Clones are the five
@@ -97,6 +164,7 @@ and candid notes on where it became unclear. Those notes are in
 | `omnisim/controllers/lift_agent/` | the OmniSim supervisor controller: the same `reset` and `step` interface as the MuJoCo env |
 | `scripts/run_omnisim.py` | runs jobs in network-less containers in parallel and merges the results in seed order |
 | `results/` | raw per-episode results, policies, demonstrations, the preregistration and the generated summary |
+| `scripts/render_media.py`, `crosscheck/camera.py`, `media/` | the side-by-side clips: one camera pose for both simulators, the OmniSim `_render` worlds and the GIFs |
 
 The hand rides a three-axis gantry of position-servoed prismatic joints in
 both scenes. The original repository uses a mocap weld, which OmniSim has no

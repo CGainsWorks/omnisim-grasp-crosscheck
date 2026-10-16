@@ -96,3 +96,20 @@ def test_demo_collection_shapes(env):
     obs, act, outcomes = collect_demos(env, range(2))
     assert obs.shape[1] == task.OBS_DIM and act.shape[1] == task.ACT_DIM
     assert len(obs) == task.MAX_STEPS * sum(outcomes)
+
+
+def test_camera_conventions_agree():
+    from crosscheck import camera
+
+    ax, ay, az, angle = camera.omnisim_rotation()
+    axis = np.array([ax, ay, az])
+    k = np.array([[0, -az, ay], [az, 0, -ax], [-ay, ax, 0]])
+    r = np.eye(3) + np.sin(angle) * k + (1 - np.cos(angle)) * (k @ k)
+    forward = camera.TARGET - camera.POSITION
+    forward /= np.linalg.norm(forward)
+    assert np.allclose(r[:, 0], forward, atol=1e-6)
+    assert np.isclose(np.linalg.norm(axis), 1.0)
+    pose = camera.mujoco_free_camera()
+    az_r, el_r = np.radians(pose["azimuth"]), np.radians(pose["elevation"])
+    mj_forward = [np.cos(el_r) * np.cos(az_r), np.cos(el_r) * np.sin(az_r), np.sin(el_r)]
+    assert np.allclose(mj_forward, forward, atol=1e-6)

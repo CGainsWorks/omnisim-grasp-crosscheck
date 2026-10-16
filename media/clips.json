@@ -1,0 +1,17 @@
+{
+  "seed": 10000,
+  "clips": {
+    "nominal_expert": {
+      "mujoco_success": true,
+      "omnisim_success": true
+    },
+    "friction_0.07_expert": {
+      "mujoco_success": false,
+      "omnisim_success": false
+    },
+    "friction_0.07_clone": {
+      "mujoco_success": true,
+      "omnisim_success": true
+    }
+  }
+}

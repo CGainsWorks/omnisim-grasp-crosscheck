@@ -44,8 +44,11 @@ def docker(*args: str, check: bool = True, **kw) -> subprocess.CompletedProcess:
     return subprocess.run(["docker", *args], check=check, **kw)
 
 
-def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | None = None) -> dict:
-    world_file = os.path.join(REPO, "omnisim", "worlds", f"lift_{variant}.wbt")
+def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | None = None,
+        render: bool = False) -> dict:
+    """``render`` loads the ``_render`` twin and drops ``--no-rendering`` so its camera draws."""
+    world_name = f"lift_{variant}{'_render' if render else ''}.wbt"
+    world_file = os.path.join(REPO, "omnisim", "worlds", world_name)
     if not os.path.exists(world_file):
         raise FileNotFoundError(f"{world_file} is missing; run omnisim/gen_worlds.py")
     for job in jobs:
@@ -61,7 +64,7 @@ def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | Non
     docker("volume", "create", volume, stdout=subprocess.DEVNULL)
     t0 = time.time()
     try:
-        world = f"/work/repo/omnisim/worlds/lift_{variant}.wbt"
+        world = f"/work/repo/omnisim/worlds/{world_name}"
         proc = docker(
             "run", "--rm", "--network", "none",
             "-v", f"{REPO}:/work/repo:ro", "-v", f"{volume}:/work/out",
@@ -71,6 +74,7 @@ def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | Non
             "-e", "OMNISIM_LOG_PATH=/work/out/omnisim_log.txt",
             *[x for k, v in (extra_env or {}).items() for x in ("-e", f"{k}={v}")],
             IMAGE, "run-headless", world, "--duration", str(duration),
+            *(["--gui"] if render else []),
             check=False, capture_output=True, text=True)
         os.makedirs(out, exist_ok=True)
         holder = f"crosscheck-cp-{tag}"
@@ -80,7 +84,11 @@ def run(variant: str, jobs: list, out: str, duration: int, extra_env: dict | Non
             with tempfile.TemporaryDirectory() as tmp:
                 docker("cp", f"{holder}:/work/out/.", tmp)
                 for name in os.listdir(tmp):
-                    shutil.copy2(os.path.join(tmp, name), os.path.join(out, name))
+                    src, dst = os.path.join(tmp, name), os.path.join(out, name)
+                    if os.path.isdir(src):
+                        shutil.copytree(src, dst, dirs_exist_ok=True)
+                    else:
+                        shutil.copy2(src, dst)
         finally:
             docker("rm", holder, stdout=subprocess.DEVNULL)
     finally:

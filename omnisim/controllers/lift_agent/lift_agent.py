@@ -53,6 +53,15 @@ class OmniSimLiftEnv:
         self.box = robot.getFromDef("BOX")
         self.box_translation = self.box.getField("translation")
         self.box_rotation = self.box.getField("rotation")
+        # Frames for the README media, only in the ``_render`` worlds, which
+        # carry the camera. CROSSCHECK_FRAMES names the directory to write to.
+        self.frame_dir = os.environ.get("CROSSCHECK_FRAMES")
+        self.frame_prefix = None
+        self.camera = None
+        if self.frame_dir:
+            self.camera = robot.getDevice("scene_cam")
+            self.camera.enable(CONTROL_MS)
+            os.makedirs(self.frame_dir, exist_ok=True)
 
     def _command(self, grip_setpoint: np.ndarray, finger: float) -> None:
         carriage = grip_setpoint + np.array([0.0, 0.0, task.GRIP_BELOW_PALM])
@@ -103,12 +112,17 @@ class OmniSimLiftEnv:
         self._setpoint = init["grip"].copy()
         self._goal = task.goal_for(init["box_xy"])
         self._prev_opening = self._opening()
+        self._frame = 0
         return self._obs()
 
     def step(self, action: np.ndarray) -> np.ndarray:
         self._setpoint = task.next_setpoint(self._setpoint, action)
         self._command(self._setpoint, task.finger_command(action))
         self._tick()
+        if self.camera is not None and self.frame_prefix:
+            self._frame += 1
+            self.camera.saveImage(os.path.join(
+                self.frame_dir, f"{self.frame_prefix}_{self._frame:03d}.png"), 95)
         return self._obs()
 
 
@@ -137,6 +151,7 @@ def main() -> None:
             for seed in range(*job["seeds"]):
                 actor = policy if policy is not None else make_actor(job["actor"], seed)
                 record = job["actor"] == "expert_demo"
+                env.frame_prefix = f"{job['name']}_{seed}"
                 ep = run_episode(env, actor, seed, job["variant"], record=record)
                 ep["settle_error"] = env.settle_error
                 if record:

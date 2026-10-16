@@ -21,7 +21,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
-from crosscheck import task  # noqa: E402
+from crosscheck import camera, task  # noqa: E402
 from crosscheck.variants import VARIANTS  # noqa: E402
 
 # Carriage height at zero lift-joint travel. The lift joint's position is the
@@ -103,7 +103,7 @@ DEF GANTRY Robot {{
   controllerArgs [ "{variant}" ]
   supervisor TRUE
   children [
-    SliderJoint {{
+{camera}    SliderJoint {{
       jointParameters JointParameters {{ axis 1 0 0 dampingConstant 5 }}
       device [
         LinearMotor {{ name "gx" maxForce 200 maxVelocity 1 minPosition -0.3 maxPosition 0.3 }}
@@ -226,7 +226,29 @@ FINGER = """                      SliderJoint {{
                       }}"""
 
 
-def render(variant: str) -> str:
+# Worlds that also get a ``_render`` twin carrying a camera, for the README media.
+# The twin's physics is the same file with one extra device on the static base.
+RENDER_VARIANTS = ("nominal", "friction_0.07")
+
+CAMERA = """    Camera {{
+      name "scene_cam"
+      translation {x:.4f} {y:.4f} {z:.4f}
+      rotation {ax:.6f} {ay:.6f} {az:.6f} {angle:.6f}
+      fieldOfView {fov}
+      width {width}
+      height {height}
+    }}
+"""
+
+
+def camera_block() -> str:
+    ax, ay, az, angle = camera.omnisim_rotation()
+    x, y, z = camera.POSITION
+    return CAMERA.format(x=x, y=y, z=z, ax=ax, ay=ay, az=az, angle=angle, fov=camera.HFOV,
+                         width=camera.WIDTH, height=camera.HEIGHT)
+
+
+def render(variant: str, with_camera: bool = False) -> str:
     v = VARIANTS[variant]
     fingers = "\n".join([
         FINGER.format(axis=1, name="finger_l", x=-0.052, pad_x=0.011, pad_def="PAD_L",
@@ -236,7 +258,8 @@ def render(variant: str) -> str:
     ])
     return TEMPLATE.format(variant=variant, mass=v["box_mass"], mu=v["box_friction"],
                            box=2 * task.BOX_HALF, box_z=task.TABLE_Z + task.BOX_HALF + 0.001,
-                           home_z=HOME_Z, fingers=fingers)
+                           home_z=HOME_Z, fingers=fingers,
+                           camera=camera_block() if with_camera else "")
 
 
 def main() -> int:
@@ -247,9 +270,12 @@ def main() -> int:
     out_dir = os.path.join(HERE, "worlds")
     os.makedirs(out_dir, exist_ok=True)
     stale = []
-    for variant in args.variants:
-        path = os.path.join(out_dir, f"lift_{variant}.wbt")
-        text = render(variant)
+    targets = [(v, False) for v in args.variants]
+    targets += [(v, True) for v in RENDER_VARIANTS if v in args.variants]
+    for variant, with_camera in targets:
+        suffix = "_render" if with_camera else ""
+        path = os.path.join(out_dir, f"lift_{variant}{suffix}.wbt")
+        text = render(variant, with_camera)
         if args.check:
             current = open(path, encoding="utf-8").read() if os.path.exists(path) else None
             if current != text:
